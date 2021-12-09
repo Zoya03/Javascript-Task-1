@@ -1,0 +1,135 @@
+<html>
+	<head>
+		<title>Javascript Test</title>
+	</head>
+	<body>
+		<style>
+			#table  {
+				font-family: Arial;
+				border: 1px solid black;
+				border-collapse: collapse;
+				width: 35%;
+				margin: 10px 0px 20px 0px;
+			}
+			#theading, #tablebody {
+				border: 1px solid black;
+				text-align: left;
+				padding: 70px;
+				
+			} 
+			#btn-back, #btn-next, #btn-getTodos{
+		  		background-color: white;
+		  		color: black;
+		  		border: 2px solid grey;
+			}
+
+			#btn-back:hover, #btn-next:hover, #btn-getTodos:hover {
+	  			background-color: grey;
+	 			color: white;
+			}
+
+		</style>
+
+		<h2>Todo List</h2>
+		<button id="btn-getTodos" onclick="getTodos()">Get Todos</button>
+		<p id="demo"></p>
+		<div class="loader">
+			<img id="loading-img" src="https://i.stack.imgur.com/MEBIB.gif" alt="Loading...">
+		</div>
+
+		<table id="table">
+			<thead id="theading"></thead>
+			<tbody id="tablebody"></tbody>
+		</table>
+
+		<input id="btn-back" type="button" value="Back" onclick="goBack()"> 
+		<input id="btn-next" type="button" value="Next" onclick="goForward()">
+		<script>
+			function getTodos()
+			{	
+				fetch("https://jsonplaceholder.typicode.com/todos")
+				.then(response => response.json())
+				.then(json => loadInTable(json))
+				.then(loader())
+				.catch(error => document.getElementById("demo").innerHTML = error);
+			}
+		
+			function loader() {
+				document.querySelector(".loader").style.display="none";
+			}
+
+			var apidata = [];
+			var start = 0;
+			var end = 10;
+			
+			function statusChange(id){
+				
+				const filtered = apidata.find(function(element){
+					return element.id == id;
+				});
+
+				filtered.completed = true;
+				renderTable();
+			}
+			
+
+			function renderTable(){
+				
+				var heading = '<tr><th>UserId</th><th>Id</th><th>Title</th><th>Status</th><th>Action</th></tr>';
+				document.getElementById("theading").innerHTML = heading;
+				var data = '';
+				for(let i = start; i< end; i++)
+				{
+					var value = apidata[i];
+					var str, fnl;
+					var max_length = 15;
+					var title = value.title;
+					if(title.length > max_length)
+					{
+						 str = title.substring(0, max_length);
+						 fnl = str + "...";
+						
+					}
+				
+					data += '<tr>';
+                    data += '<td>' + value.userId + '</td>';
+					data += '<td>' + value.id + '</td>';
+					data += '<td id="title_">' + fnl + '</td>';
+					data += '<td id="status_'+value.id+'">' + value.completed + '</td>';
+					if(value.completed == false){
+						data += '<td>' + '<button id="btn_' + value.id + '" onclick="statusChange('+value.id+')">Completed</button>' + '</td>';
+						}
+						data += '</tr>';
+					}
+
+				 document.getElementById("tablebody").innerHTML = data;
+			}	 
+				 if(start == 0)
+				 {
+				 	//hide back
+				 }
+				 if(end >= apidata.length)
+				 {
+				 	//hide forward
+				 }
+			
+			function loadInTable(table)
+			{
+				apidata = table;
+				renderTable();
+			}
+			function goForward(){
+				start = start + 10;
+				end = end + 10;
+				renderTable();
+			}
+
+			function goBack(){
+				start = start - 10;
+				end = end - 10;
+				renderTable();
+			}
+		</script>
+	</body>
+	
+</html>
